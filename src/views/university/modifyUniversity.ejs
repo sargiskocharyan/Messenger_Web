@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><%= action %> University</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/main.css">
+
+
+</head>
+<body>
+	<%- include('../supportingLayouts/navbar', {condition, nameOfUser}); -%>
+
+	<div class="col-md-4 col-md-offset-4">
+		<div><br/>
+			<h2><%= action %> University
+			</h2>
+		</div>
+		<div class="form-group">
+			<form id="form1" method="post">
+				<input type="text" name="name" placeholder="Անվանում" required="true" class="form-control"  <%= readonly %> value="<%= name %>"><br/>
+				<input type="text" name="nameRU" placeholder="Название"   class="form-control" <%= readonly %> value="<%= nameRU %>"><br/>
+				<input type="text" name="nameEN" placeholder="Name" required="" class="form-control" <%= readonly %> value="<%= nameEN %>"><br/>
+				<% if (readonly) { %> 
+					<input type="text" name="cityName" placeholder="Name" readonly class="form-control" value="<%= city.nameAM %>"><br/>
+				<% } else { %>
+					<label for="cars">Choose a city:</label>
+					<select name="cityId" class="form-control">
+						<% if (cities.length > 0) { %>
+							<% for(var i = 0; i < cities.length; i++) { %>
+								<% if (action == "Edit") { %>
+									<% if (cities[i]._id.toString() == city._id.toString()) { %>
+										<option value="<%= cities[i]._id %>" selected><%= cities[i].nameAM %></option>
+									<% } else { %>
+										<option value="<%= cities[i]._id %>"><%= cities[i].nameAM %></option>
+									<% }; %>
+								<% } else { %>
+									<option value="<%= cities[i]._id %>"><%= cities[i].nameAM %></option>
+								<% } %>
+							<% } %>
+						<% } %>
+					</select><br/>
+					<input type="submit" value="<%= action %>" class="btn btn-success">
+				<% } %>
+			</form>
+			<% if (id) { %>
+				<a class="btn btn-primary" href="/university/edit?id=<%= id %>" role="button">Edit</a>
+				<a class="btn btn-danger" href="/university/delete?id=<%= id %>" role="button">Delete</a>
+			<% } %>
+		</div> 
+
+		<div class="mssg bg-danger">
+			<span id="check">  <%= msgErr %>  </span>
+		</div>
+	</div>
+</body>
+</html>

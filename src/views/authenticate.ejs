@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+	<div class="col-md-4 col-md-offset-4">
+		<div>
+			<p>Authenticate</p>
+		</div>
+		<div class="form-group">
+			<form id="form" method="post" >
+				<input type="text" name="email" placeholder="E-mail" required="true" class="form-control" value="<%= email %>"><br/>
+				<input type="submit" value="Continue" class="btn btn-success">
+			</form>
+		</div>
+		<div class="mssg bg-danger">
+			<span id="check" ><%= msgErr %></span>
+		</div>
+		<!-- <div id="LangTable">
+            <a href="/profile" id="aa"></a>
+		</div> -->
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><%= action %> City</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/main.css">
+
+
+</head>
+<body>
+	<%- include('../supportingLayouts/navbar', {condition, nameOfUser}); -%>
+	<div class="col-md-4 col-md-offset-4">
+		<div><br/>
+			<h2><%= action %> City
+			</h2>
+		</div>
+		<div class="form-group">
+			<form id="form1" method="post">
+				<input type="text" name="nameAM" placeholder="Անվանում" required="true" class="form-control"  <%= readonly %> value="<%= nameAM %>"><br/>
+				<input type="text" name="nameRU" placeholder="Название"   class="form-control" <%= readonly %> value="<%= nameRU %>"><br/>
+				<input type="text" name="nameEN" placeholder="Name" required="" class="form-control" <%= readonly %> value="<%= nameEN %>"><br/>
+				<% if (readonly == null) { %>
+					<input type="submit" value="<%= action %>" class="btn btn-success">
+				<% } %>
+			</form>
+			<% if (id) { %>
+				<a class="btn btn-primary" href="/city/edit?id=<%= id %>" role="button">Edit</a>
+				<a class="btn btn-danger" href="/city/delete?id=<%= id %>" role="button">Delete</a>
+			<% } %>
+		</div> 
+
+
+
+		<div class="mssg bg-danger">
+			<span id="check">  <%= msgErr %>  </span>
+		</div>
+	</div>
+</body>
+</html>

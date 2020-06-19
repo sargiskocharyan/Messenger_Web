@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Users</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="../css/main.css">
+
+
+</head>
+<body>
+    <%- include('../supportingLayouts/navbar', {condition, nameOfUser}); -%>
+	<div class="col-md-4 col-md-offset-4">
+		<div><br/>
+			<h2>Users
+			</h2>
+		</div>
+        <div ></br>  
+            <% if (users.length > 0) { %>       
+                <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Lastname</th>
+                        <th>Username</th>
+                        <th>email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(var i = 0; i < users.length; i++) { %>
+                        <tr onclick="redirect('<%= users[i]._id %>');">
+                            <td><%= users[i].name %></td>
+                            <td><%= users[i].lastname %></td>
+                            <td><%= users[i].username %></td>
+                            <td><%= users[i].email %></td>
+                            <td><%= users[i].role %></td>
+                        </tr>
+                    <% } %>
+                </tbody>
+                </table>
+            <% } else { %>
+                <h3>There arn't any users yet.</h3>
+            <% } %>
+          </div>
+
+		<div class="mssg bg-danger">
+			<span id="check">  <%= msgErr %>  </span>
+		</div>
+    </div>
+    <script>
+        function redirect(uri) {
+            window.location = window.location.toString().replace('/all', '/?id='+ uri)
+        }
+    </script>
+</body>
+</html>

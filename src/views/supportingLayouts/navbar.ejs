@@ -1,0 +1,35 @@
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">WebSiteName</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li id="allUsers"><a href="#">Users</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><span class="glyphicon glyphicon-user" ></span><%= nameOfUser %></a></li>
+      </ul>
+        <% if (condition) { %>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/user/all"><span class="glyphicon glyphicon-star" ></span>Superusers</a></li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="/university/all"><span class="glyphicon glyphicon-education" ></span>Universities</a></li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="/city/all"><span class="glyphicon glyphicon-home" ></span>Cities</a></li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="/user/new"><span class="glyphicon glyphicon-star-empty" ></span>Add superuser</a></li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="/university/new"><span class="glyphicon glyphicon-plus" ></span>Add University</a></li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="/city/new"><span class="glyphicon glyphicon-plus" ></span>Add City</a></li>
+              </ul>
+        <% } %>
+
+      
+    </div>
+</nav></br></br>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+	<div class="col-md-4 col-md-offset-4">
+		<div>
+			<p>Login</p>
+		</div>
+		<div class="form-group">
+			<form id="form" method="post" >
+				<input type="text" name="email" placeholder="E-mail" required="true" class="form-control" value="<%= email %>"><br/>
+				<input type="text" name="code" placeholder="Code" required="true" class="form-control"><br/>
+				<input type="submit" value="Login" class="btn btn-success">
+			</form>
+		</div>
+		<div class="mssg bg-danger">
+			<span id="check" ><%= msgErr %></span>
+		</div>
+		<div id="LangTable"><a href="/profile" id="aa"></a>
+		</div>
+		<!-- <div><span>Do you forgot password?</span><a href="/forgetpass">click here</a>
+		</div> -->
+		<div><span>You havn't sign up yet?</span><a href="/register">click here</a>
+		</div>
+	</div>
+</body>
+</html>

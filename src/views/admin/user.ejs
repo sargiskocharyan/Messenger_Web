@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><%= action %> User</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/main.css">
+
+
+</head>
+<body>
+	<%- include('../supportingLayouts/navbar', {condition, nameOfUser}); -%>
+	<div class="col-md-4 col-md-offset-4">
+		<div><br/>
+			<h2><%= action %> User
+			</h2>
+		</div>
+		<div class="form-group">
+			<form id="form1" method="post">
+				<input type="text" name="name" placeholder="name" required="true" class="form-control"  <%= readonly %> value="<%= name %>"><br/>
+				<input type="text" name="lastname" placeholder="Lastname" required="true" class="form-control" <%= readonly %> value="<%= lastname %>"><br/>
+                <input type="email" name="email" placeholder="Email" required="true" class="form-control" <%= readonly %> value="<%= email %>"><br/>
+                <input type="text" name="username" placeholder="Username" required="true" class="form-control" <%= readonly %> value="<%= username %>"><br/>
+                
+                
+                <% if (readonly) { %> 
+                    <input type="text" name="role" readonly class="form-control" value="<%= role %>"><br/>
+					<input type="text" name="universityName" placeholder="Name" readonly class="form-control" value="<%= university.name %>"><br/>
+                <% } else { %>
+                    <select name="role" class="form-control">
+                        <% if (role == "admin") { %>
+                            <option value="moderator" >Moderator</option>
+                            <option value="admin" selected>Admin</option>
+                        <% } else { %>
+                            <option value="moderator" selected>Moderator</option>
+                            <option value="admin">Admin</option>
+                        <% } %>
+                    </select></br>
+                    <% if (action == "Edit") { %>
+                        <input type="password" name="password" placeholder="Password" class="form-control" ><br/>
+                    <% } else { %>
+                        <input type="password" name="password" placeholder="Password" required="true" class="form-control" ><br/>
+                    <% } %>
+					<label for="cars">Choose University:</label>
+					<select name="universityId" class="form-control">
+						<% if (universities.length > 0) { %>
+							<% for(var i = 0; i < universities.length; i++) { %>
+								<% if (action == "Edit") { %>
+									<% if (universities[i]._id.toString() == university._id.toString()) { %>
+										<option value="<%= universities[i]._id %>" selected><%= universities[i].name %></option>
+									<% } else { %>
+										<option value="<%= universities[i]._id %>"><%= universities[i].name %></option>
+									<% }; %>
+								<% } else { %>
+									<option value="<%= universities[i]._id %>"><%= universities[i].name %></option>
+								<% } %>
+							<% } %>
+						<% } %>
+					</select><br/>
+					<input type="submit" value="<%= action %>" class="btn btn-success">
+				<% } %>
+			</form>
+			<% if (id) { %>
+				<a class="btn btn-primary" href="/user/edit?id=<%= id %>" role="button">Edit</a>
+				<a class="btn btn-danger" href="/user/delete?id=<%= id %>" role="button">Delete</a>
+			<% } %>
+		</div> 
+
+		<div class="mssg bg-danger">
+			<span id="check">  <%= msgErr %>  </span>
+		</div>
+	</div>
+</body>
+</html>
