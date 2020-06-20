@@ -11,6 +11,11 @@ const chatSchema = new mongoose.Schema({
         required: true,
         ref: 'Room'
     },
+    safe: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -23,13 +28,6 @@ const chatSchema = new mongoose.Schema({
 {
     timestamps: true
 })
-
-chatSchema.virtual('messages', {
-    ref: 'Message',
-    localField: '_id',
-    foreignField: "owner"
-})
-
 
 const Chat = mongoose.model('Chat', chatSchema)
 

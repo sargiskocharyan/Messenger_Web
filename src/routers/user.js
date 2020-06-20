@@ -1,5 +1,6 @@
 const express = require('express')
 const validator = require('validator')
+const cryptoRandomString = require('crypto-random-string')
 // const multer = require('multer')
 // const sharp = require('sharp')
 //const paths = require('path')
@@ -9,6 +10,7 @@ const Token = require('../models/Auth/Token')
 
 const resType = require('../middleware/resType')
 const auth = require('../middleware/auth')
+const Chat = require('../models/Chat/Chat')
 const Room = require('../models/Chat/Room')
 const jwt = require('jsonwebtoken')
 //const Message = require('../models/message')
@@ -75,26 +77,26 @@ router.get('/', resType, auth, async (req, res) => {
     
     const array = []
     await req.user.populate({
-        path: 'rooms'
+        path: 'chats'
     }).execPopulate()
-    var rooms = req.user.rooms
+    var chats = req.user.chats
     await req.user.populate({
-        path: 'rooms2'
+        path: 'chats2'
     }).execPopulate()
-    rooms = rooms.concat(req.user.rooms2)
+    chats = chats.concat(req.user.chats2)
     var cond = true
-    for (i in rooms) {
-        if (rooms[i].owner == req.user._id.toString()) {
-            if (rooms[i].ownerOther == req.user._id.toString() && cond){
+    for (i in chats) {
+        if (chats[i].owner == req.user._id.toString()) {
+            if (chats[i].ownerOther == req.user._id.toString() && cond){
                 //do Nothing, because there are duplicate
                 cond = false
             } else {
-                const room = await rooms[i].populate('ownerOther').execPopulate()
-                array.push({id: rooms[i].ownerOther._id.toString(), name: room.ownerOther.username})
+                const chat = await chats[i].populate('ownerOther').execPopulate()
+                array.push({id: chat.ownerOther._id.toString(), name: chat.ownerOther.username})
             }
         } else {
-            const room = await rooms[i].populate('owner').execPopulate()
-            array.push({id: rooms[i].owner._id.toString(), name: room.owner.username})
+            const chat = await chats[i].populate('owner').execPopulate()
+            array.push({id: chat.owner._id.toString(), name: chat.owner.username})
         }
     }
     const condition = req.user.role == 'user' ? null : true;
@@ -104,28 +106,30 @@ router.get('/', resType, auth, async (req, res) => {
 router.get('/chats', resType, auth, async (req, res) => {
     const array = []
     await req.user.populate({
-        path: 'rooms'
+        path: 'chats'
     }).execPopulate()
-    var rooms = req.user.rooms
+    var chats = req.user.chats
     await req.user.populate({
-        path: 'rooms2'
+        path: 'chats2'
     }).execPopulate()
-    rooms = rooms.concat(req.user.rooms2)
+    chats = chats.concat(req.user.chats2)
     var cond = true
-    for (i in rooms) {
-        if (rooms[i].owner == req.user._id.toString()) {
-            if (rooms[i].ownerOther == req.user._id.toString() && cond){
+    for (i in chats) {
+        if (chats[i].owner == req.user._id.toString()) {
+            if (chats[i].ownerOther == req.user._id.toString() && cond){
                 //do Nothing, because there are duplicate
-                cond = false
+                cond = false//change when will be added safe chats!!
             } else {
-                const room = await rooms[i].populate('ownerOther').execPopulate()
+                const chat = await chats[i].populate('ownerOther').execPopulate()
+                const room = await chat.populate('room').execPopulate()
                 const message = await room.getLastMassage()
-                array.push({id: rooms[i].ownerOther._id.toString(), name: room.ownerOther.name, lastname: room.ownerOther.lastname, username: room.ownerOther.username, message})
+                array.push({id: chat.ownerOther._id.toString(), name: chat.ownerOther.name, lastname: chat.ownerOther.lastname, username: chat.ownerOther.username, message})
             }
         } else {
-            const room = await rooms[i].populate('owner').execPopulate()
+            const chat = await chats[i].populate('owner').execPopulate()
+            const room = await chat.populate('room').execPopulate()
             const message = await room.getLastMassage()
-            array.push({id: rooms[i].owner._id.toString(), name: room.owner.name, lastname: room.owner.lastname, username: room.owner.username, message})
+            array.push({id: chat.owner._id.toString(), name: chat.owner.name, lastname: chat.owner.lastname, username: chat.owner.username, message})
         }
     }
     res.send(array)
@@ -292,13 +296,22 @@ router.post('/register',resType, async (req, res) => {
                     throw new Error('Email or code not valid!')
                 }
                 const user = new User({email: req.body.email})
-                user.username = "user@" + user._id.toString()
-                const room = new Room({name:(user._id).toString()})
-                user.userRoom = room.name
+                var uniqueUsername = true 
+                var randomString = cryptoRandomString({length: 6});
+                while (uniqueUsername) {
+                    const userExists = await User.findOne({username: `user@${randomString}`})
+                    if (userExists == null) {
+                        user.username = "user@" + user._id.toString()
+                        uniqueUsername = false
+                    } else {
+                        randomString = cryptoRandomString({length: 6});
+                    }
+                }
+                //const room = new Room({name:(user._id).toString()})
+                user.userRoom = user._id.toString()
                 await user.save()
                 await temporaryUser.remove()
                 const token = await user.generateAuthToken()
-                await room.save()
                 res.send({token, user})      
         } catch (e) {
             return res.status(400).send({Error: e.toString()})
@@ -319,28 +332,35 @@ router.get('/chats/:id', resType, auth, async (req, res) => {
         const id = req.params.id
         const condition = id < req.user._id.toString()
         const name = condition ? id + req.user._id.toString() : req.user._id.toString() + id
-        const path = condition ?  'rooms2' : 'rooms'
+        const path = condition ?  'chats2' : 'chats'
         try {
             await req.user.populate({
                 path,
                 match: {name}
             }).execPopulate()
             const user = await User.findById(id)
-            const rooms = req.user[path]
-            if (rooms.length > 0) {
-                await rooms[0].populate({
-                    path: 'messages'
+            const chats = req.user[path]
+            if (chats.length > 0) {
+                await chats[0].populate('room').execPopulate()
+                const room = chats[0].room
+                await room.populate({
+                    path: 'messagesVirt'
                 }).execPopulate()
-                res.send(rooms[0].messages)
+                res.send(room.messagesVirt)//add count!! max 20 messages
             } else {
                 let room = null
-                    if (condition) {
-                        room = new Room({name: id + req.user._id.toString(), owner: user._id, ownerOther: req.user._id})
-                    } else {
-                        room = new Room({name: req.user._id.toString() + id, owner: req.user._id, ownerOther: user._id})
-                    }
-                    await room.save()
-                    res.send({messages: []})
+                let chat = null
+                if (condition) {
+                    room = new Room()
+                    chat = new Chat({name: id + req.user._id.toString(), room: room._id, owner: user._id, ownerOther: req.user._id})
+                } else {
+                    room = new Room()
+                    chat = new Chat({name: req.user._id.toString() + id, room: room._id, owner: req.user._id, ownerOther: user._id})
+                }
+                room.owner = chat._id
+                await chat.save()
+                await room.save()
+                res.send({messages: []})
             }
         } catch (e) {
             console.log(e)

@@ -140,7 +140,7 @@ userSchema.methods.generateAuthToken = async function () {
 
 userSchema.methods.generateSecretCode = async function () {
     const user = this
-    const code = cryptoRandomString({length: 4, type: 'numeric'});;
+    const code = cryptoRandomString({length: 4, type: 'numeric'});
     const secretCode = new SecretCode({code, user: user._id})
     await secretCode.save()
 
@@ -195,24 +195,24 @@ userSchema.pre('remove', async function (next) {
 })//+
 
 
-userSchema.virtual('rooms', {
-    ref: 'Room',
+userSchema.virtual('chats', {
+    ref: 'Chat',
     localField: '_id',
     foreignField: 'owner'
 })
-userSchema.virtual('rooms2', {
-    ref: 'Room',
+userSchema.virtual('chats2', {
+    ref: 'Chat',
     localField: '_id',
     foreignField: 'ownerOther'
 })
 
 //Delete user rooms when user is removed - change -> delate
-userSchema.pre('remove', async function (next) {
-    const user = this
-    await Room.deleteMany({ owner: user._id })
+// userSchema.pre('remove', async function (next) {
+//     const user = this
+//     await Room.deleteMany({ owner: user._id })
 
-    next()
-})
+//     next()
+// })
 
 const User = mongoose.model('User', userSchema)
 

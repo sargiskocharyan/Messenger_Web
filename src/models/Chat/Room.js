@@ -3,34 +3,30 @@ const mongoose = require('mongoose')
 const Message = require('./Message')
 
 const roomSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        unique: true,
-        required: true,
-        trim: true,
-    },
     safe: {
         type: Boolean,
         required: true,
-        default: true
+        default: false
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    ownerOther: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }
+    messages: [{
+        message: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'messages'
+        }
+    }]
 }, {
     timestamps: true
 })
 
-roomSchema.virtual('messages', {
+roomSchema.virtual('messagesVirt', {
     ref: 'Message',
     localField: '_id',
     foreignField: "owner"
-})
+})//???
 
 roomSchema.methods.getLastMassage = async function() {
     const room = this

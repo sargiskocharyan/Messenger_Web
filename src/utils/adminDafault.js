@@ -2,6 +2,7 @@ const City = require('../models/SupportingModels/City')
 const University = require('../models/SupportingModels/University')
 
 const User = require('../models/Users/User')
+const Chat = require('../models/Chat/Chat')
 const Room = require('../models/Chat/Room')
 const Password = require('../models/SupportingModels/Password')
 
@@ -21,10 +22,10 @@ User.findOne({role: "admin"}).then(async (user) => {
                 universityDefault = universityNew
             }
             const userNew = new User({name: process.env.ADMIN_NAME, email: process.env.ADMIN_EMAIL, username: "admin-dynamic", role: "admin", university: universityDefault._id})
-            const room = new Room({name:(userNew._id).toString()})
+            //const room = new Room({name:(userNew._id).toString()})
             const password = new Password({password: process.env.ADMIN_PASSWORD, owner: userNew._id})
-            userNew.userRoom = room.name
-            await room.save()
+            userNew.userRoom = userNew._id.toString()
+            //await room.save()
             await password.save()
             await userNew.save()
             //console.log(userNew)

@@ -1,8 +1,9 @@
-const Room = require('./models/Chat/Room')
 const http = require('http')
 const socketio = require('socket.io')
 const jwt = require('jsonwebtoken')
 const User = require('./models/Users/User')
+const Chat = require('./models/Chat/Chat')
+const Room = require('./models/Chat/Room')
 const Message = require('./models/Chat/Message')
 
 const generateMessage = require('./utils/messages')
@@ -70,19 +71,22 @@ io.on('connection', async (socket) => {
 
         socket.on('sendMessage', async (message, chatId , callback = null) => {
             const name = user._id.toString() < chatId ? user._id.toString() + chatId : chatId + user._id.toString()
-            const path =  user._id.toString() > chatId ?  'rooms2' : 'rooms'
+            const path =  user._id.toString() > chatId ?  'chats2' : 'chats'
                 await user.populate({
                     path,
                     match: {name}
                 }).execPopulate()
+                await user[path][0].populate('room').execPopulate()
+                const room = user[path][0].room
                 //console.log(user[path])
                 console.log(message)
-                const messageObj = new Message({sender: {id: user._id.toString(), name: user.name}, reciever: chatId, owner: user[path][0]._id, text: message})
+                const messageObj = new Message({sender: {id: user._id.toString(), name: user.name}, reciever: chatId, owner: room._id, text: message})
                 await messageObj.save()
+                room.messages = room.messages.concat({message:messageObj._id})
                 console.log(messageObj)
                 if (user._id.toString() !== chatId) {
                     const userTo = await User.findById(chatId)
-                        io.to(userTo.userRoom).emit('message', messageObj)
+                    io.to(userTo.userRoom).emit('message', messageObj)
                     //generateMessage(user._id.toString(), chatId, user.name, message)
                 }
                 io.to(user.userRoom).emit('message', messageObj)
