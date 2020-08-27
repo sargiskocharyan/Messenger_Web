@@ -1,9 +1,6 @@
 const City = require('../models/SupportingModels/City')
 const University = require('../models/SupportingModels/University')
-
 const User = require('../models/Users/User')
-const Chat = require('../models/Chat/Chat')
-const Room = require('../models/Chat/Room')
 const Password = require('../models/SupportingModels/Password')
 
 User.findOne({role: "admin"}).then(async (user) => {

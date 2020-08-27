@@ -11,7 +11,7 @@ const tokenSchema = new mongoose.Schema({
     },
     expireAt: {
             type: Date,
-            default: Date.now,
+            default: () => Date.now() + parseInt(process.env.TOKEN_EXPIRATION_TIME)*24*60*60*1000,
             index: { expires: process.env.TOKEN_EXPIRATION_TIME }
         }
 }, {
