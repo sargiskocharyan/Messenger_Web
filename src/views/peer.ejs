@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>VideoChat</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/indexPeer.js"></script>
+  <link rel="stylesheet" href="css/stylesPeer.css">
+</head>
+
+<body>
+  <div id="chat-room" style="display: none;">
+    <div id="videos">
+      <video id="self-view" autoplay muted="muted"></video>
+      <video id="remote-view" autoplay></video>
+    </div>
+    <button id="offer">Send offer</button>
+    <button id="answer">Send answer</button>
+  </div>
+  <button id="start">Start Video Chat</button>
+</body>
+
+</html>

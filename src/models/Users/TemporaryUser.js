@@ -6,15 +6,21 @@ const SecretCode = require('../Auth/SecretCode')
 const temporaryUserSchema = new mongoose.Schema({
     email: {
         type: String,
-        unique: true,
-        required: true,
         trim: true,
+        index: { expires: '3d' },
         lowercase: true,
         validate(value) {
             if (!validator.isEmail(value)) {
                 throw new Error('Email is invalid.')
             }
         }
+    },
+    phoneNumber: {
+        type:String
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
 }, {
     timestamps: true
@@ -26,10 +32,10 @@ temporaryUserSchema.virtual('secretCodes', {
     foreignField: 'temporaryUser'
 })
 
-temporaryUserSchema.methods.generateSecretCode = async function () {
+temporaryUserSchema.methods.generateSecretCode = async function (type) {
     const tempUser = this
     const code = cryptoRandomString({length: 4, type: 'numeric'});;
-    const secretCode = new SecretCode({code, temporaryUser: tempUser._id})
+    const secretCode = new SecretCode({code, temporaryUser: tempUser._id, type})
     await secretCode.save()
 
     return code

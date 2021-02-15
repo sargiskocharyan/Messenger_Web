@@ -3,38 +3,38 @@ const mongoose = require('mongoose')
 const Message = require('./Message')
 
 const roomSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        unique: true,
-        required: true,
-        trim: true,
-    },
     safe: {
         type: Boolean,
         required: true,
-        default: true
+        default: false
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    ownerOther: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }
+    messages: [{
+        message: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'messages'
+        }
+    }]
 }, {
     timestamps: true
 })
 
-roomSchema.virtual('messages', {
+roomSchema.virtual('messagesVirt', {
     ref: 'Message',
     localField: '_id',
     foreignField: "owner"
-})
+})//???
 
 roomSchema.methods.getLastMassage = async function() {
+    //const start = new Date();
     const room = this
     const message = await Message.find({owner: room._id}).sort({createdAt: -1})
+    //console.log(message)
+    //const end = new Date();
+    //console.log(`getLastMessage - ${(end - start)/1000}`)
     return message.length > 0 ? message[0] : null
 }
 

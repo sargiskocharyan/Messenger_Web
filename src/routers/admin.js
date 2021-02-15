@@ -10,33 +10,37 @@ const auth = require('../middleware/auth')
 const adminAuth = require('../middleware/adminAuth')
 
 const router = new express.Router()
-//+
-router.get('/user/new', resType, auth, adminAuth, async (req, res) => {
+//+adminAuth, 
+router.get('/superuser/new', resType, auth, adminAuth, async (req, res) => {
+    console.log('user/new1');
     try {
         const universities = await University.find({})
+        console.log('user/new')
         res.render('admin/user.ejs', {action: 'Create', name: null, lastname: null, email: null, username: null, role: null, readonly: null, universities, univercity: null, id: null, msgErr: null, condition: true, nameOfUser: req.user.username})
     } catch (e) {
+        console.log(e)
         res.send({Error: e.message})
     }
 })
 //+
-router.post('/user/new', resType, auth, adminAuth, async (req, res) => {
+router.post('/superuser/new', resType, auth, adminAuth, async (req, res) => {
     try {
         const university = await University.findOne({_id: req.body.universityId}).orFail(new Error('Id not defined!'))
         const user = new User({name: req.body.name, lastname: req.body.lastname, email: req.body.email, username: req.body.username, role: req.body.role, university: university._id})
-        const room = new Room({name:(user._id).toString()})
+        //const room = new Room({name:(user._id).toString()})
         const password = new Password({password: req.body.password, owner: user._id})
-        user.userRoom = room.name
-        await room.save()
-        await password.save()
-        await user.save()
-        res.redirect('/user?id=' + user._id.toString())
+        user.userRoom = user._id.toString()
+        //await room.save()
+        await Promise.all([password.save(), user.save()])
+        // await password.save()
+        // await user.save()
+        res.redirect('/superuser?id=' + user._id.toString())
     } catch (e) {
         res.status(400).send({Error: e.message})
     }
 })
 //+
-router.get('/user', resType, auth, async (req, res) => {
+router.get('/superuser', resType, auth, async (req, res) => {
     try {
         const user = await User.findOne({_id: req.query.id}).orFail(new Error('Id not defined!'))
         let userId = user._id
@@ -52,7 +56,7 @@ router.get('/user', resType, auth, async (req, res) => {
     }
 })
 //+
-router.get('/user/edit', resType, auth, adminAuth, async (req, res) => {
+router.get('/superuser/edit', resType, auth, adminAuth, async (req, res) => {
     try {
         const user = await User.findOne({_id: req.query.id}).orFail(new Error('Id not defined!'))
         await user.populate({path: 'university'}).execPopulate()
@@ -63,7 +67,7 @@ router.get('/user/edit', resType, auth, adminAuth, async (req, res) => {
     }
 })
 //+
-router.post('/user/edit', resType, auth, adminAuth, async (req, res) => {
+router.post('/superuser/edit', resType, auth, adminAuth, async (req, res) => {
     try {
         const user= await User.findOne({_id: req.query.id}).orFail(new Error('Not valid id!'))
         if (user.role == 'user') {
@@ -83,13 +87,13 @@ router.post('/user/edit', resType, auth, adminAuth, async (req, res) => {
             password.password = req.body.password
             await password.save()
         }
-        res.redirect('/user?id=' + user._id.toString())
+        res.redirect('/superuser?id=' + user._id.toString())
     } catch (e) {
         res.send({Error: e.message})
     }
 })
 //+
-router.get('/user/delete', resType, auth, adminAuth, async (req, res) => {
+router.get('/superuser/delete', resType, auth, adminAuth, async (req, res) => {
     try {
         const user = await User.findOne({_id: req.query.id}).orFail(new Error('Not valid id!'))
         if ( user.role == 'user' || req.user._id.toString() == user._id.toString()) {
@@ -102,9 +106,11 @@ router.get('/user/delete', resType, auth, adminAuth, async (req, res) => {
     }
 })
 //+
-router.get('/user/all', resType, auth, async (req, res) => {
+router.get('/superuser/all', resType, auth, async (req, res) => {
+    console.log('esim inch')
     try {
-        const users = await User.find({$or: [{role:'admin'},{role:'moderator'}]})
+        const users = await User.find({$or: [{role:'admin'},{role:'moderator'}]});
+        console.log(`user/all - ${users}`)
         if (req.resType == 'json') {
             res.send(users) 
         } else {

@@ -1,16 +1,31 @@
 const mongoose = require('mongoose')
 
 const messageSchema = new mongoose.Schema({
-    sender: {
-        id: {
+    senderId: {
             type: String,
             required: true,
             trim: true,
+    },
+    type: {
+        type: String,
+        required: true,
+        enum: ['text', 'call', 'file', 'img', 'video', 'location', 'audio'],
+        default: "text"
+    },
+    call: {
+        callSuggestTime: {
+            type: Date,
         },
-        name: {
+        type: {
             type: String,
-            required: true,
-            trim: true,
+            enum: ['audio', 'video']
+        },
+        status: {
+            type: String,
+            enum: ['ongoing', 'missed', 'cancelled', 'accepted']
+        },
+        duration: {
+            type: Number
         }
     },
     reciever: {
@@ -25,8 +40,19 @@ const messageSchema = new mongoose.Schema({
     },
     text: {
         type: String,
-        trim: true,
-        required: true
+        trim: true
+    },
+    video: {
+        type: String
+    },
+    audio: {
+        type: String
+    },
+    file: {
+        type: String
+    },
+    location: {
+        type: String
     }
 }, {
     timestamps: true

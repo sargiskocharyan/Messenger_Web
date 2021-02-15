@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
         validate(value) {
-            if (!validator.isAlpha(value) || value.length < 2) {
+            if (value != null && (!validator.isAlpha(value) || value.length < 2)) {
                 throw new Error('Name is invalid.')
             }
         }
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
         validate(value) {
-            if (!validator.isAlpha(value) || value.length < 2) {
+            if (value != null && (!validator.isAlpha(value) || value.length < 2)) {
                 throw new Error('Lastname is invalid.')
             }
         }
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
     },
     university: {
         type: mongoose.Schema.Types.ObjectId,
-        require: true,
+        //require: true,
         ref: 'University'
     },
     // age: {
@@ -79,8 +79,12 @@ const userSchema = new mongoose.Schema({
         }
     }],
     userRoom: {
-            type: String,
-            required: true
+        type: String,
+        required: true
+    },
+    deactivated: {
+        type: Boolean,
+        default: false
     },
     role: {
         type: String,
@@ -96,12 +100,50 @@ const userSchema = new mongoose.Schema({
         }
     }],
     avatar: {
-        type: Buffer
+        avatarURL: {
+            type: String
+        },
+        avatarName: {
+            type: String
+        }
     },
     blocked: {
         type: Boolean,
         required: true,
         default: false
+    },
+    hideData: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    missedCallHistory: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'Call'
+        }
+    ],
+    phoneNumber: {
+        type: String
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female'],
+        required: true,
+        default: "male"
+    },
+    birthday: {
+        type: Date
+    },
+    lastOnline: {
+        type: Date
+    },
+    address: {
+        type: String 
+    },
+    info: {
+        type: String
     }
 }, {
     timestamps: true
@@ -109,10 +151,17 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.toJSON = function () {
     const user = this
+    if (user.deactivated == true) {
+        return {_id: user._id.toString(), deactivated: true}
+    }
     const userObject = user.toObject()
-    delete userObject.avatar
+    if (userObject.avatar) {
+        userObject.avatarURL = userObject.avatar.avatarURL//added
+        delete userObject.avatar
+    }
     delete userObject.blockedUsers
     delete userObject.contacts
+    delete userObject.hideData
     delete userObject.groups
     delete userObject.channels
     delete userObject.userRoom
@@ -120,6 +169,8 @@ userSchema.methods.toJSON = function () {
     delete userObject.__v
     delete userObject.createdAt
     delete userObject.updatedAt
+
+    // delete userObject.university
     if (userObject.university) {
         delete userObject.university.__v
         delete userObject.university.createdAt
@@ -135,13 +186,13 @@ userSchema.methods.generateAuthToken = async function () {
     const token = new Token({token: tokenString, owner: user._id})
     await token.save()
 
-    return token.token
+    return {token:token.token,expireAt:token.expireAt}
 }//+
 
-userSchema.methods.generateSecretCode = async function () {
+userSchema.methods.generateSecretCode = async function (type) {
     const user = this
-    const code = cryptoRandomString({length: 4, type: 'numeric'});;
-    const secretCode = new SecretCode({code, user: user._id})
+    const code = cryptoRandomString({length: 4, type: 'numeric'});
+    const secretCode = new SecretCode({code, user: user._id, type});
     await secretCode.save()
 
     return code
@@ -158,6 +209,8 @@ userSchema.statics.findByCredentials = async (email, password) => {
         }).execPopulate()
         if (user.secretCodes.length < 1) {
             throw new Error("Email or code not valid!")
+        } else {
+            await user.secretCodes[0].remove()
         }
     } else {
         await user.populate({path: 'password'}).execPopulate()
@@ -195,24 +248,24 @@ userSchema.pre('remove', async function (next) {
 })//+
 
 
-userSchema.virtual('rooms', {
-    ref: 'Room',
+userSchema.virtual('chats', {
+    ref: 'Chat',
     localField: '_id',
     foreignField: 'owner'
 })
-userSchema.virtual('rooms2', {
-    ref: 'Room',
+userSchema.virtual('chats2', {
+    ref: 'Chat',
     localField: '_id',
     foreignField: 'ownerOther'
 })
 
 //Delete user rooms when user is removed - change -> delate
-userSchema.pre('remove', async function (next) {
-    const user = this
-    await Room.deleteMany({ owner: user._id })
+// userSchema.pre('remove', async function (next) {
+//     const user = this
+//     await Room.deleteMany({ owner: user._id })
 
-    next()
-})
+//     next()
+// })
 
 const User = mongoose.model('User', userSchema)
 
